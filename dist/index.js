@@ -37,18 +37,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const puppeteer = __importStar(require("puppeteer"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const uploadFunction_1 = require("./upload/uploadFunction");
-const fetchErrors_1 = require("./fetchErrors");
+const readFiles_1 = require("./upload/readFiles");
 dotenv_1.default.config();
 (() => __awaiter(void 0, void 0, void 0, function* () {
     const url = process.env.URL || '';
-    const filePath = process.env.FILEPATH || '';
-    const resolution = process.env.RESOLUTION || '';
+    const folderPath = process.env.FOLDER || '';
     const browser = yield puppeteer.launch({ headless: false });
     const page = yield browser.newPage();
     yield page.setViewport({ width: 1200, height: 1000 });
     yield page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    yield (0, uploadFunction_1.uploadFile)(page, filePath);
-    yield (0, uploadFunction_1.selectResolution)(page, resolution);
-    yield (0, fetchErrors_1.handleServerOverload)(page, filePath, resolution, browser);
+    yield (0, readFiles_1.readFilesFromFolder)(browser, page, folderPath);
 }))();

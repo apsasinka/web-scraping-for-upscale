@@ -15,7 +15,7 @@ export async function handleServerOverload(page: puppeteer.Page, filePath: strin
                 await handleServerOverload(page, filePath, resolution, browser);
             },
             '2': async () => {
-                console.log('Завершение процесса...');
+                console.log('Завершение процесса...');      //заменить завершение процесса на возврат аргумента
                 await browser.close();
             }
         };

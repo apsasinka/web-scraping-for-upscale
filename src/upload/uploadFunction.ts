@@ -18,7 +18,7 @@ export async function uploadFile(page: puppeteer.Page | null, filePath: string):
     } catch (error) {
         console.error('Произошла ошибка при загрузке файла:', error);
     }
-}
+};
 
 export async function selectResolution(page: puppeteer.Page, resolution: string): Promise<void> {
     try {

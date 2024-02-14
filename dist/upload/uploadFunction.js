@@ -33,6 +33,7 @@ function uploadFile(page, filePath) {
     });
 }
 exports.uploadFile = uploadFile;
+;
 function selectResolution(page, resolution) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
