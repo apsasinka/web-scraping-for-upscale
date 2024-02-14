@@ -8,7 +8,6 @@ async function uploadFile(page, filePath) {
     }
 
     try {
-        // Не используем await page.goto(), так как мы уже загрузили страницу перед вызовом этой функции
         const fileInput = await page.$('body > input');
         await fileInput.uploadFile(filePath);
 
