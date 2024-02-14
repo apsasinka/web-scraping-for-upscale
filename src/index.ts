@@ -1,7 +1,9 @@
-const puppeteer = require('puppeteer');
-require('dotenv').config();
+import * as puppeteer from 'puppeteer';
+import dotenv from 'dotenv';
 
-async function uploadFile(page, filePath) {
+dotenv.config();
+
+async function uploadFile(page: puppeteer.Page | null, filePath: string): Promise<void> {
     if (!page) {
         console.error('Не удалось загрузить файл: страница не найдена.');
         return;
@@ -10,17 +12,20 @@ async function uploadFile(page, filePath) {
     try {
         await page.waitForSelector('#dropBox > button', { visible: true });
         const fileInput = await page.$('body > input');
-        await fileInput.uploadFile(filePath);
-
-        console.log('Файл успешно загружен.');
+        if (!fileInput) {
+            console.error('Не удалось найти элемент для загрузки файла.');
+        } else {
+            await fileInput.uploadFile(filePath);
+            console.log('Файл успешно загружен.');
+        }
     } catch (error) {
         console.error('Произошла ошибка при загрузке файла:', error);
     }
 }
 
-async function selectResolution(page, resolution) {
+async function selectResolution(page: puppeteer.Page, resolution: string): Promise<void> {
     try {
-        const resolutionActions = {
+        const resolutionActions: Record<string, () => Promise<void>> = {
             '2': async () => {
                 await page.waitForSelector('#actionBtns > div > button', { visible: true });
                 await page.click('#actionBtns > div > button');
@@ -53,18 +58,18 @@ async function selectResolution(page, resolution) {
     }
 };
 
-async function handleServerOverload(page, filePath, resolution, browser) {
+async function handleServerOverload(page: puppeteer.Page, filePath: string, resolution: string, browser: puppeteer.Browser): Promise<void> {
     try {
         await page.waitForSelector('#content > div > div > div.text-danger.text-center.font-weight-bold.font-size-3', { visible: true });
         console.error('Ошибка: Сервер ресурса перегружен.');
 
-        const actions = {
+        const actions: Record<string, () => Promise<void>> = {
             '1': async () => {
                 console.log('Перезагрузка...');
                 await page.click('#start_over');
                 await uploadFile(page, filePath);
                 await selectResolution(page, resolution);
-                await handleServerOverload(page);
+                await handleServerOverload(page, filePath, resolution, browser);
             },
             '2': async () => {
                 console.log('Завершение процесса...');
@@ -74,7 +79,7 @@ async function handleServerOverload(page, filePath, resolution, browser) {
 
         let action;
         do {
-            const answer = await askUser('Выберите действие: 1 - Перезагрузить, 2 - Завершить');
+            const answer: string = await askUser('Выберите действие: 1 - Перезагрузить, 2 - Завершить');
             action = actions[answer];
 
             if (!action) {
@@ -88,30 +93,31 @@ async function handleServerOverload(page, filePath, resolution, browser) {
     }
 };
 
-async function askUser(question) {
+async function askUser(question: string): Promise<string> {
     const readline = require('readline').createInterface({
         input: process.stdin,
         output: process.stdout
     });
 
-    return new Promise(resolve => {
-        readline.question(question + ' ', answer => {
+    return new Promise<string>(resolve => {
+        readline.question(question + ' ', (answer: string) => {
             readline.close();
             resolve(answer);
         });
     });
 };
+
 (async () => {
-    const url = process.env.URL;
-    const filePath = process.env.FILEPATH;
-    const resolution = process.env.RESOLUTION;
+    const url: string = process.env.URL || '';
+    const filePath = process.env.FILEPATH || '';
+    const resolution = process.env.RESOLUTION || '';
 
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     await page.setViewport({ width: 1200, height: 1000 });
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
-    await uploadFile(page, filePath);
-    await selectResolution(page, resolution);
-    await handleServerOverload(page, filePath, resolution, browser);
+    await uploadFile(page, filePath!);
+    await selectResolution(page, resolution!);
+    await handleServerOverload(page, filePath!, resolution!, browser);
 })();
