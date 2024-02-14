@@ -1,0 +1,16 @@
+{
+  "name": "web-scraping",
+  "version": "1.0.0",
+  "description": "Web scraping for automatic photo upscaling on the site",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon scrape.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "apsasinka",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.2",
+    "puppeteer": "^22.0.0"
+  }
+}
